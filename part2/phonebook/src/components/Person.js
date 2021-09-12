@@ -1,7 +1,7 @@
 import React from "react";
 import dataService from "../services/dataService";
 
-const Person = ({ persons, setPersons }) => {
+const Person = ({ persons, setPersons, setMessage }) => {
   const deleteHandler = (person) => {
     const action = window.confirm(`Do you want to delete ${person.name}`);
     const setArry = () => {
@@ -11,7 +11,25 @@ const Person = ({ persons, setPersons }) => {
       dataService
         .deleteData(person.id)
         .then(setArry())
-        .catch((err) => console.log(err));
+        .then(() => {
+          setMessage({
+            text: `${person.name} has been removed`,
+            type: "success",
+          });
+          setTimeout(() => {
+            setMessage(null);
+          }, 5000);
+        })
+        .catch((err) => {
+          console.log(err);
+          setMessage({
+            text: `${person.name} was already removed`,
+            type: "error",
+          });
+          setTimeout(() => {
+            setMessage(null);
+          }, 5000);
+        });
     }
   };
 

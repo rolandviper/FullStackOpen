@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Person from "./components/Person";
+import Notification from "./components/Notification";
 
 //module for REST to data
 import dataService from "./services/dataService";
@@ -12,6 +13,8 @@ const App = () => {
   const [newNumber, setNumber] = useState("");
   const [filter, setFilter] = useState("");
   const [filterPersons, setFilterPersons] = useState(persons);
+
+  const [message, setMessage] = useState(null);
 
   //use effect to get data
   const hook = () => {
@@ -47,8 +50,23 @@ const App = () => {
             setPersons(
               persons.map((person) => (person.id === res.id ? res : person))
             );
+            setMessage({
+              text: `${res.name} number has been updated`,
+              type: "success",
+            });
+            setTimeout(() => {
+              setMessage(null);
+            }, 5000);
           })
-          .catch((err) => console.log(err));
+          .catch((err) => {
+            setMessage({
+              text: `Information of ${nameObj.name} has already been removed from server ${err.message} `,
+              type: "error",
+            });
+            setTimeout(() => {
+              setMessage(null);
+            }, 5000);
+          });
         setNewName("");
         setNumber("");
         return;
@@ -59,9 +77,19 @@ const App = () => {
       .createData(nameObj)
       .then((returnData) => {
         setPersons(persons.concat(returnData));
-        window.confirm("Added new data");
+        setMessage({
+          text: `Added ${returnData.name} to directory.`,
+          type: "success",
+        });
+        setTimeout(() => setMessage(null), 5000);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        setMessage({ text: err.message + " " + err.type, type: "error" });
+        setTimeout(() => {
+          setMessage(null);
+        }, 5000);
+        console.log(err.response);
+      });
 
     setNewName("");
     setNumber("");
@@ -90,6 +118,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={message} />
       <Filter value={filter} handler={handleFilter} />
       <h3>Add a new person and number:</h3>
       <PersonForm
@@ -102,9 +131,17 @@ const App = () => {
       <h2>Numbers</h2>
       <ul>
         {filter === "" ? (
-          <Person persons={persons} setPersons={setPersons} />
+          <Person
+            persons={persons}
+            setPersons={setPersons}
+            setMessage={setMessage}
+          />
         ) : (
-          <Person persons={filterPersons} setPersons={setPersons} />
+          <Person
+            persons={filterPersons}
+            setPersons={setPersons}
+            setMessage={setMessage}
+          />
         )}
       </ul>
     </div>
