@@ -3,7 +3,8 @@ import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Person from "./components/Person";
 
-import axios from "axios";
+//module for REST to data
+import dataService from "./services/dataService";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -14,11 +15,11 @@ const App = () => {
 
   //use effect to get data
   const hook = () => {
-    console.log("effect");
-    axios.get("http://localhost:3001/persons").then((res) => {
+    console.log("effect hook");
+    dataService.getAll().then((res) => {
       console.log("promise done");
-      setPersons(res.data);
-      //console.log(res.data);
+      setPersons(res);
+      //console.log(res);
     });
   };
   useEffect(hook, []);
@@ -33,12 +34,35 @@ const App = () => {
     };
 
     if (perArray.includes(`${nameObj.name}`)) {
-      console.log("got duplicate");
-      window.confirm(`${newName} is already added, please add another name`);
-      return;
+      const id = persons
+        .filter((person) => person.name === newName)
+        .map((person) => person.id);
+      const res = window.confirm(
+        `${newName} is already added, update the number with a new one?`
+      );
+      if (res) {
+        dataService
+          .updateData(id, nameObj)
+          .then((res) => {
+            setPersons(
+              persons.map((person) => (person.id === res.id ? res : person))
+            );
+          })
+          .catch((err) => console.log(err));
+        setNewName("");
+        setNumber("");
+        return;
+      }
     }
 
-    setPersons(persons.concat(nameObj));
+    dataService
+      .createData(nameObj)
+      .then((returnData) => {
+        setPersons(persons.concat(returnData));
+        window.confirm("Added new data");
+      })
+      .catch((err) => console.log(err));
+
     setNewName("");
     setNumber("");
   };
@@ -78,9 +102,9 @@ const App = () => {
       <h2>Numbers</h2>
       <ul>
         {filter === "" ? (
-          <Person persons={persons} />
+          <Person persons={persons} setPersons={setPersons} />
         ) : (
-          <Person persons={filterPersons} />
+          <Person persons={filterPersons} setPersons={setPersons} />
         )}
       </ul>
     </div>
