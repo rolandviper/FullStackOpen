@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const url = "http://localhost:3001/persons";
+const url = "/api/persons";
 
 const getAll = () => {
   const req = axios.get(url);
@@ -22,9 +22,6 @@ const updateData = (id, data) => {
   return req.then((res) => res.data);
 };
 
-export default {
-  getAll,
-  createData,
-  deleteData,
-  updateData,
-};
+const dataService = { getAll, createData, deleteData, updateData };
+
+export default dataService;

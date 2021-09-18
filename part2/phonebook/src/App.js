@@ -84,7 +84,7 @@ const App = () => {
         setTimeout(() => setMessage(null), 5000);
       })
       .catch((err) => {
-        setMessage({ text: err.message + " " + err.type, type: "error" });
+        setMessage({ text: err.response.data.error, type: "error" });
         setTimeout(() => {
           setMessage(null);
         }, 5000);
