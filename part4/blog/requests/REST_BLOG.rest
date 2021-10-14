@@ -1,0 +1,13 @@
+GET http://localhost:3003/api/blogs
+
+###
+
+POST http://localhost:3003/api/blogs HTTP/1.1
+Content-Type: application/json
+
+{
+    "title": "Third Test Post",
+    "author": "JK Rowlaing",
+    "url": "api/random/string/3",
+    "likes": 3
+}
